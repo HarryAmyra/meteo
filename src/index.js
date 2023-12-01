@@ -43,7 +43,7 @@ function formatDate(date) {
 
 function searchCity(city) {
   let apiKey = "b2a5adcct04b33178913oc335f405433";
-  let apiUrl = `https://api.shecodes.io/weather/v1/current?query=${city}&key=${apiKey}`;
+  let apiUrl = `https://api.shecodes.io/weather/v1/current?query=${city}&key=${apiKey}&units=metric`;
   axios.get(apiUrl).then(refreshWeather);
 }
 
@@ -53,44 +53,45 @@ function handleSearchSubmit(event) {
 
   searchCity(searchInput.value);
 }
-// calling api variable
+
+function formatDay(timestamp) {
+  let date = new Date(timestamp * 1000);
+  let days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  return days[date.getDay()];
+}
+
 function getForecast(city) {
-  let apiKey = "aa36f1f0f2oa79cb80t502e45820df12";
-  let apiUrl = `https://api.shecodes.io/weather/v1/current?query=${city}&key=${apiKey}`;
+  let apiKey = "b2a5adcct04b33178913oc335f405433";
+  let apiUrl = `https://api.shecodes.io/weather/v1/forecast?query=${city}&key=${apiKey}&units=metric`;
   axios(apiUrl).then(displayForecast);
 }
 
-//creating a function to display weather forecast
-//logging the data
 function displayForecast(response) {
-  console.log(response.data);
-
-  //creating an arrau for the days of the week
-  let days = ["Tue", "Wed", "Thurs", "Fri", "Sat", "Sun"];
-
-  //creatig a forecast html variable that is empty. this allows all of the following forecast html to be injected inside this function.
   let forecastHtml = "";
 
-  //forecast HTML
-  //creating a loop to go through all the days and add the days of the week with the forecast html 5 times .
-  days.forEach(function (day) {
-    forecastHtml =
-      forecastHtml +
-      `
-          <div class="weather-forecast-day">
-            <div class="weather-forecast-date">${day}</div>
-            <div class="weather-forecast-icon">🌤</div>
-            <div class="weather-forecast-temperatures">
-              <div class="weather-forecast-temperature">
-                <strong>15°</strong>
-              </div>
-              <div class="weather-forecast-temperature2">9°</div>
-              </div>
-            </div>
-            `;
+  response.data.daily.forEach(function (day, index) {
+    if (index < 5) {
+      forecastHtml =
+        forecastHtml +
+        `
+      <div class="weather-forecast-day">
+        <div class="weather-forecast-date">${formatDay(day.time)}</div>
+
+        <img src="${day.condition.icon_url}" class="weather-forecast-icon" />
+        <div class="weather-forecast-temperatures">
+          <div class="weather-forecast-temperature">
+            <strong>${Math.round(day.temperature.maximum)}º</strong>
+          </div>
+          <div class="weather-forecast-temperature">${Math.round(
+            day.temperature.minimum
+          )}º</div>
+        </div>
+      </div>
+    `;
+    }
   });
 
-  // when the loop is over your injecting the html to our inner html
   let forecastElement = document.querySelector("#forecast");
   forecastElement.innerHTML = forecastHtml;
 }
