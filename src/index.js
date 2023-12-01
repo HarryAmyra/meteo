@@ -16,6 +16,8 @@ function refreshWeather(response) {
   windSpeedElement.innerHTML = `${response.data.wind.speed}km/h`;
   temperatureElement.innerHTML = Math.round(temperature);
   iconElement.innerHTML = `<img src="${response.data.condition.icon_url}" class="weather-app-icon" />`;
+
+  getForecast(response.data.city);
 }
 
 function formatDate(date) {
@@ -51,11 +53,26 @@ function handleSearchSubmit(event) {
 
   searchCity(searchInput.value);
 }
+// calling api variable
+function getForecast(city) {
+  let apiKey = "aa36f1f0f2oa79cb80t502e45820df12";
+  let apiUrl = `https://api.shecodes.io/weather/v1/current?query=${city}&key=${apiKey}`;
+  axios(apiUrl).then(displayForecast);
+}
 
-function displayForecast() {
+//creating a function to display weather forecast
+//logging the data
+function displayForecast(response) {
+  console.log(response.data);
+
+  //creating an arrau for the days of the week
   let days = ["Tue", "Wed", "Thurs", "Fri", "Sat", "Sun"];
+
+  //creatig a forecast html variable that is empty. this allows all of the following forecast html to be injected inside this function.
   let forecastHtml = "";
 
+  //forecast HTML
+  //creating a loop to go through all the days and add the days of the week with the forecast html 5 times .
   days.forEach(function (day) {
     forecastHtml =
       forecastHtml +
@@ -73,6 +90,7 @@ function displayForecast() {
             `;
   });
 
+  // when the loop is over your injecting the html to our inner html
   let forecastElement = document.querySelector("#forecast");
   forecastElement.innerHTML = forecastHtml;
 }
@@ -81,4 +99,3 @@ let searchFormElement = document.querySelector("#search-form");
 searchFormElement.addEventListener("submit", handleSearchSubmit);
 
 searchCity("Paris");
-displayForecast();
